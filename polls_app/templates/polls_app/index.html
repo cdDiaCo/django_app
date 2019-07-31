@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body>
+
+<div>
+    <h3> List containing all the available polls: </h3>
+
+{% if polls_list %}
+    <ul>
+    {% for poll in polls_list %}
+        <li><a href="/polls/{{ poll.id }}/">{{ poll.poll_name }}</a></li>
+    {% endfor %}
+    </ul>
+{% else %}
+    <p>No polls are available.</p>
+{% endif %}
+
+ </div>
+
+</body>
+</html>
+
+

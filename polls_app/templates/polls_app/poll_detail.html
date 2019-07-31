@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body>
+
+<h3> {{ poll }} </h3>
+
+<form action="">
+
+{% for question in questions %}
+    {{ question }}
+    <br>
+    {% for answer in answers %}
+        {% if answer.question_id == question.id %}
+            <input type="checkbox" name="{{ question.id }}" value="{{ answer.id }}">
+            {{ answer }}
+        {% endif %}
+    {% endfor %}
+    <br>
+    <br>
+{% endfor %}
+<input type="submit" value="Get result">
+</form>
+
+
+
+</body>
+</html>
