@@ -12,7 +12,7 @@
 {% if polls_list %}
     <ul>
     {% for poll in polls_list %}
-        <li><a href="/polls/{{ poll.id }}/">{{ poll.poll_name }}</a></li>
+        <li><a href="{% url 'polls_app:poll_detail' poll.id %}">{{ poll.poll_name }}</a></li>
     {% endfor %}
     </ul>
 {% else %}

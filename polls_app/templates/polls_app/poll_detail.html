@@ -8,14 +8,15 @@
 
 <h3> {{ poll }} </h3>
 
-<form action="">
+<form action="{% url 'polls_app:poll_submit' poll.id %}" method="post">
+{% csrf_token %}
 
 {% for question in questions %}
     {{ question }}
     <br>
     {% for answer in answers %}
         {% if answer.question_id == question.id %}
-            <input type="checkbox" name="{{ question.id }}" value="{{ answer.id }}">
+            <input type="checkbox" name="answer" value="{{ answer.id }}">
             {{ answer }}
         {% endif %}
     {% endfor %}
@@ -23,6 +24,7 @@
     <br>
 {% endfor %}
 <input type="submit" value="Get result">
+
 </form>
 
 
