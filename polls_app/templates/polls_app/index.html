@@ -3,6 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <title>Title</title>
+    {% load static %}
+
+    <link rel="stylesheet" type="text/css" href="{% static 'polls_app/style.css' %}">
 </head>
 <body>
 
@@ -10,13 +13,32 @@
     <h3> List containing all the available polls: </h3>
 
 {% if polls_list %}
-    <ul>
+    <table>
+    <tr>
+        <th>  Poll Name </th>
+        <th> Description </th>
+        <th> Link </th>
+    </tr>
+
+
+
     {% for poll in polls_list %}
-        <li><a href="{% url 'polls_app:poll_detail' poll.id %}">{{ poll.poll_name }}</a></li>
+            <tr>
+                <td>
+                    {{ poll.poll_name }}
+                </td>
+                <td>
+                    {{ poll.poll_description }}
+                </td>
+                <td>
+                    <a href="{% url 'polls_app:poll_detail' poll.id %}"> Start test </a>
+                </td>
+            </tr>
     {% endfor %}
-    </ul>
+
+    </table>
 {% else %}
-    <p>No polls are available.</p>
+    <p> No polls are available.</p>
 {% endif %}
 
  </div>

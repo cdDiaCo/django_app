@@ -4,6 +4,7 @@ from django.template import loader
 from django.http import Http404
 from django.urls import reverse
 from django.db.models import Sum
+from django.core.paginator import Paginator
 from .models import Poll, Question, Answer, Results
 
 
@@ -18,8 +19,14 @@ def index(request):
 
 def detail(request, poll_id):
     poll = get_object_or_404(Poll, pk=poll_id)
-    questions = Question.objects.filter(poll_id=poll_id)
-    answers = Answer.objects.filter(question__in = questions).select_related()
+    questions_list = Question.objects.filter(poll_id=poll_id)
+    answers = Answer.objects.filter(question__in = questions_list).select_related()
+
+    paginator = Paginator(questions_list, 5)  # Show 5 questions per page
+
+    page = request.GET.get('page')
+    questions = paginator.get_page(page)
+
     return render(request, 'polls_app/poll_detail.html', {'poll': poll, 'questions': questions, 'answers': answers})
 
 

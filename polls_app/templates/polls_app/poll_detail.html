@@ -3,6 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <title>Title</title>
+    {% load static %}
+
+    <link rel="stylesheet" type="text/css" href="{% static 'polls_app/style.css' %}">
 </head>
 <body>
 
@@ -12,7 +15,7 @@
 {% csrf_token %}
 
 {% for question in questions %}
-    {{ question }}
+    {{ question }}<br>
     <br>
     {% for answer in answers %}
         {% if answer.question_id == question.id %}
@@ -23,7 +26,28 @@
     <br>
     <br>
 {% endfor %}
-<input type="submit" value="Get result">
+
+
+{% if not questions.has_next  %}
+    <input type="submit" value="Get result">
+{% endif %}
+
+
+<div class="pagination">
+    <span class="step-links">
+        {% if questions.has_previous %}
+            <a href="?page={{ questions.previous_page_number }}"> << </a>
+        {% endif %}
+
+        <span class="current">
+            Page {{ questions.number }} of {{ questions.paginator.num_pages }}.
+        </span>
+
+        {% if questions.has_next %}
+            <a href="?page={{ questions.next_page_number }}" onclick="validate()"> >> </a>
+        {% endif %}
+    </span>
+</div>
 
 </form>
 
