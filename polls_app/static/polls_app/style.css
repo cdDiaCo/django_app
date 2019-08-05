@@ -19,10 +19,13 @@ h3 {
 }
 
 form {
-    margin: 20px
+    margin: 20px;
 
 }
 
 input[type='checkbox'] {
     margin-bottom: 25px;
 }
+
+
+

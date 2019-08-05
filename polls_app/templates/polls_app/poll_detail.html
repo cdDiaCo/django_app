@@ -11,10 +11,18 @@
 
 <h3> {{ poll }} </h3>
 
-<form action="{% url 'polls_app:poll_submit' poll.id %}" method="post">
+<form id="pollForm" action="{% url 'polls_app:poll_submit' poll.id %}" method="post">
 {% csrf_token %}
 
-{% for question in questions %}
+{% if not validation_passed %}
+    <span style="color:red; font-weight:bold;" > You must choose at least an answer for every question! </span>
+    <br>
+{% endif %}
+
+
+
+
+{% for question in sorted_questions %}
     {{ question }}<br>
     <br>
     {% for answer in answers %}
@@ -28,26 +36,27 @@
 {% endfor %}
 
 
-{% if not questions.has_next  %}
+{% if current_page == total_pages %}
     <input type="submit" value="Get result">
 {% endif %}
 
 
 <div class="pagination">
-    <span class="step-links">
-        {% if questions.has_previous %}
+    <span>
+        {% if current_page > 1 %}
             <a href="?page={{ questions.previous_page_number }}"> << </a>
         {% endif %}
 
-        <span class="current">
-            Page {{ questions.number }} of {{ questions.paginator.num_pages }}.
+        <span>
+            Page {{ current_page }} of {{ total_pages }}
         </span>
 
-        {% if questions.has_next %}
-            <a href="?page={{ questions.next_page_number }}" onclick="validate()"> >> </a>
+        {% if current_page < total_pages %}
+            <a href="#" onclick="document.getElementById('pollForm').submit();"> >> </a>
         {% endif %}
     </span>
 </div>
+
 
 </form>
 
