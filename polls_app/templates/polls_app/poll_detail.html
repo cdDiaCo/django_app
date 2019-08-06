@@ -20,9 +20,7 @@
 {% endif %}
 
 
-
-
-{% for question in sorted_questions %}
+{% for question in current_page_questions %}
     {{ question }}<br>
     <br>
     {% for answer in answers %}
@@ -43,9 +41,10 @@
 
 <div class="pagination">
     <span>
+    <!--
         {% if current_page > 1 %}
             <a href="?page={{ questions.previous_page_number }}"> << </a>
-        {% endif %}
+        {% endif %} -->
 
         <span>
             Page {{ current_page }} of {{ total_pages }}
