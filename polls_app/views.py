@@ -48,7 +48,7 @@ def detail(request, poll_id):
     return x
 
 def getNumOfPages(questions_list):
-    total_num_of_pages = len(questions_list) // questions_per_page # get only integer(nor float) from division
+    total_num_of_pages = len(questions_list) // questions_per_page # get only integer(not float) from division
     if len(questions_list) % questions_per_page > 0:
         total_num_of_pages += 1
 
@@ -58,29 +58,54 @@ def getNumOfPages(questions_list):
 def submit(request, poll_id):
     poll = get_object_or_404(Question, pk=poll_id)
 
-    answers_list = request.POST.getlist('answer')
+    answers_received = request.POST.getlist('answer')
+    questions_list = Question.objects.filter(poll_id=poll_id)
 
-    if len(answers_list) < request.session['current_page_questions_number']: # validation did not pass
+    current_page_questions = get_current_page_questions(int(request.session['current_page']), questions_list)
+    validation = isPageValid(answers_received, current_page_questions)
+
+    if not validation: # validation did not pass
         request.session['validation_passed'] = False
         return HttpResponseRedirect(
             reverse('polls_app:poll_detail', args=(poll.id,)))
 
     else: # validation passed
-        for answer in answers_list:
+        for answer in answers_received:
             # store the answers received after every page in a session variable
-            request.session['answers_received'].append(answer)
+            request.session['answers_received'].append(answer.split(".")[0])
+
 
         # Always return an HttpResponseRedirect after successfully dealing with POST data. This prevents data from being posted twice if a user hits the Back button.
         if int(request.session['current_page']) == int(request.session['total_num_of_pages']):
             total_score = Answer.objects.filter(pk__in=request.session['answers_received']).aggregate(Sum('answer_score'))
             del request.session['current_page']
-            #del request.session['total_num_of_pages']
+            del request.session['total_num_of_pages']
             return HttpResponseRedirect(
                 reverse('polls_app:poll_results', args=(poll.id, total_score['answer_score__sum'])))
 
         else:
             request.session['current_page'] = int(request.session['current_page']) + 1
             return HttpResponseRedirect(reverse('polls_app:poll_detail', args=(poll.id,)))
+
+
+
+def isPageValid(answers_received, current_page_questions):
+    answered_questions = getAnsweredQuestions(answers_received)
+
+    for question in current_page_questions:
+        if question.id not in answered_questions:
+            return False
+
+    return True
+
+
+
+def getAnsweredQuestions(answers_received):
+    questions_received = []
+    for answer in answers_received:
+        questions_received.append(int(answer.split(".")[1]))
+
+    return  questions_received
 
 
 

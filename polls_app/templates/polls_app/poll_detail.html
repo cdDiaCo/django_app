@@ -22,10 +22,11 @@
 
 {% for question in current_page_questions %}
     {{ question }}<br>
+   <!-- <input type="hidden" name="question" value="{{ question.id }}"> -->
     <br>
     {% for answer in answers %}
         {% if answer.question_id == question.id %}
-            <input type="checkbox" name="answer" value="{{ answer.id }}">
+            <input type="checkbox" name="answer" value="{{ answer.id }}.{{ question.id }}">
             {{ answer }}
         {% endif %}
     {% endfor %}
