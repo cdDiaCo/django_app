@@ -8,18 +8,25 @@
 
 <h3> You have a total score of {{ total_score }} points </h3>
 <h3> You got the result with the ID {{ result_id }} and the upper limit of {{ upper_limit }} points </h3>
-<h3> Necessary extra answers for a better result: </h3>
-{% if necessary_amswers %}
-    <ul>
-    {% for answer in necessary_amswers %}
-        <li>
-        <span> Answer: "{{ answer.answer_text }}" </span>
-        <span> with a score of: {{ answer.answer_score }} points </span> <br>
-        </li>
-    {% endfor %}
-    </ul>
+
+{% if max_possible_score %}
+    <span> You got the result with the highest score! </span>
 {% else %}
-    <span> Too many points needed to change the result... :( </span>
+
+    <h3> Necessary extra answers for a better result: </h3>
+    {% if necessary_amswers %}
+        <ul>
+        {% for answer in necessary_amswers %}
+            <li>
+            <span> Answer: "{{ answer.answer_text }}" </span>
+            <span> with a score of: {{ answer.answer_score }} points </span> <br>
+            </li>
+        {% endfor %}
+        </ul>
+    {% else %}
+        <span> Too many points needed to change the result... :( </span>
+    {% endif %}
+
 {% endif %}
 
 </body>

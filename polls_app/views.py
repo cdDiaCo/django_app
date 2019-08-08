@@ -127,13 +127,14 @@ def get_current_page_questions(current_page, questions_list):
 
 def results(request, poll_id, total_score):
     poll = get_object_or_404(Poll, pk=poll_id)
-    results = Results.objects.filter(poll_id = poll_id).filter()
-    upper_limit = getUpperLimit(results, total_score)
+    db_results = Results.objects.filter(poll_id = poll_id)
+    upper_limit = getUpperLimit(db_results, total_score)
 
     max_possible_score = False
     necessary_answers = []
 
-    if upper_limit[1] == isMaxPossibleScore(poll_id, upper_limit[1]):
+
+    if isMaxPossibleScore(poll_id, upper_limit[1]):
         max_possible_score = True
     else:
         score_difference = upper_limit[1] - total_score
@@ -145,12 +146,19 @@ def results(request, poll_id, total_score):
                                                          'necessary_amswers': necessary_answers, 'max_possible_score': max_possible_score })
 
     del request.session['answers_received']
-    return  x
+    return x
 
 
 # needs implementation !!!
 def isMaxPossibleScore(poll_id, upper_limit):
-    pass
+    result = Results.objects.filter(poll_id = poll_id).order_by('-result_upper_limit').first()
+
+    if result.result_upper_limit == upper_limit :
+        return True
+
+    return False
+
+
 
 
 
