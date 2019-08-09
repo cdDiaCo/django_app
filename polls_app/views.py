@@ -61,6 +61,8 @@ def submit(request, poll_id):
     answers_received = request.POST.getlist('answer')
     questions_list = Question.objects.filter(poll_id=poll_id)
 
+
+
     current_page_questions = get_current_page_questions(int(request.session['current_page']), questions_list)
     validation = isPageValid(answers_received, current_page_questions)
 
@@ -73,7 +75,6 @@ def submit(request, poll_id):
         for answer in answers_received:
             # store the answers received after every page in a session variable
             request.session['answers_received'].append(answer.split(".")[0])
-
 
         # Always return an HttpResponseRedirect after successfully dealing with POST data. This prevents data from being posted twice if a user hits the Back button.
         if int(request.session['current_page']) == int(request.session['total_num_of_pages']):
@@ -108,7 +109,6 @@ def getAnsweredQuestions(answers_received):
     return  questions_received
 
 
-
 def get_current_page_questions(current_page, questions_list):
     start_at = current_page * questions_per_page - questions_per_page
     stop_at = current_page * questions_per_page
@@ -138,7 +138,8 @@ def results(request, poll_id, total_score):
         max_possible_score = True
     else:
         score_difference = upper_limit[1] - total_score
-        necessary_answers = calculateNecessaryAnswers(poll_id, int(request.session['total_num_of_pages']), score_difference)
+        answers_received_copy = request.session['answers_received']
+        necessary_answers = calculateNecessaryAnswers(poll_id, int(request.session['total_num_of_pages']), score_difference, answers_received_copy )
 
 
     del request.session['total_num_of_pages']
@@ -147,6 +148,20 @@ def results(request, poll_id, total_score):
 
     del request.session['answers_received']
     return x
+
+
+def getReceivedAnswersPerPage(received_answers, page):
+    answers_for_page = []
+
+    for answer in received_answers:
+        answer_page = answer.split(".")[2]
+        if page == int(answer_page):
+            answers_for_page.append(int(answer.split(".")[0]))
+
+    return answers_for_page
+
+
+
 
 
 
@@ -162,7 +177,7 @@ def isMaxPossibleScore(poll_id, upper_limit):
 
 
 
-def calculateNecessaryAnswers(poll_id, total_pages, score_difference):
+def calculateNecessaryAnswers(poll_id, total_pages, score_difference, answers_received):
     questions_list = Question.objects.filter(poll_id=poll_id)
     necessary_answers = []
 
@@ -171,8 +186,10 @@ def calculateNecessaryAnswers(poll_id, total_pages, score_difference):
 
         # order answers by score desc
         current_page_answers = Answer.objects.filter(question__in=current_page_questions).select_related().order_by('-answer_score')
+        received_answers_per_page = getReceivedAnswersPerPage(answers_received, page_num)
+        not_selected_answers = getNotSelectedAnswers(received_answers_per_page, current_page_answers)
 
-        for answer in current_page_answers:
+        for answer in not_selected_answers:
             if answer.answer_score > score_difference : # in this case only one answer is needed to change the result
 
                 if len(necessary_answers) > 0 :
@@ -194,11 +211,18 @@ def calculateNecessaryAnswers(poll_id, total_pages, score_difference):
     return []
 
 
-def removeSelectedAnswersFromList(selected_answers, current_page_answers):
+def getNotSelectedAnswers(answers_received, current_page_answers):
+    not_selected_answers = []
 
-    for sel_answer in selected_answers:
-        pass
-    pass
+    for answer_rec in answers_received:
+        for answ in current_page_answers:
+            if int(answer_rec) == answ.id:
+                continue
+            else:
+                not_selected_answers.append(answ)
+
+    return not_selected_answers
+
 
 
 

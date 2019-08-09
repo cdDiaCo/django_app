@@ -6,16 +6,13 @@ from .models import Poll, Question, Answer
 
 
 class NecessaryAnswersTests(TestCase):
-    pass
 
     def setUp(self):
-        Poll.objects.create(poll_name="Ancient History Test", poll_description="Description of Ancient History Test")
-        poll = Poll.objects.get(poll_name="Ancient History Test")
+        poll = Poll.objects.create(poll_name="Ancient History Test", poll_description="Description of Ancient History Test")
 
         for i in range(1, 11):
             question_text = "Question number " + str(i)
-            Question.objects.create(question_text=question_text, poll_id=poll.id)
-            question = Question.objects.get(question_text=question_text)
+            question = Question.objects.create(question_text=question_text, poll_id=poll.id)
             for j in range(1, 4):
                 answer_text = "Answer number " + str(i) + "." + str(j)
                 answer_score = 10 * j

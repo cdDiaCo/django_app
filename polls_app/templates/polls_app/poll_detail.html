@@ -26,7 +26,7 @@
     <br>
     {% for answer in answers %}
         {% if answer.question_id == question.id %}
-            <input type="checkbox" name="answer" value="{{ answer.id }}.{{ question.id }}">
+            <input type="checkbox" name="answer" value="{{ answer.id }}.{{ question.id }}.{{ current_page }}">
             {{ answer }}
         {% endif %}
     {% endfor %}
