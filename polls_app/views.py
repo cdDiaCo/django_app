@@ -149,7 +149,7 @@ def results(request, poll_id, total_score):
     return x
 
 
-# needs implementation !!!
+
 def isMaxPossibleScore(poll_id, upper_limit):
     result = Results.objects.filter(poll_id = poll_id).order_by('-result_upper_limit').first()
 
@@ -170,9 +170,9 @@ def calculateNecessaryAnswers(poll_id, total_pages, score_difference):
         current_page_questions = get_current_page_questions(page_num, questions_list)
 
         # order answers by score desc
-        answers = Answer.objects.filter(question__in=current_page_questions).select_related().order_by('-answer_score')
+        current_page_answers = Answer.objects.filter(question__in=current_page_questions).select_related().order_by('-answer_score')
 
-        for answer in answers:
+        for answer in current_page_answers:
             if answer.answer_score > score_difference : # in this case only one answer is needed to change the result
 
                 if len(necessary_answers) > 0 :
@@ -192,6 +192,13 @@ def calculateNecessaryAnswers(poll_id, total_pages, score_difference):
                     return necessary_answers
 
     return []
+
+
+def removeSelectedAnswersFromList(selected_answers, current_page_answers):
+
+    for sel_answer in selected_answers:
+        pass
+    pass
 
 
 
