@@ -1,10 +1,7 @@
 from django.shortcuts import render, get_object_or_404
 from django.http import HttpResponse, HttpResponseRedirect
-from django.template import loader
-from django.http import Http404
 from django.urls import reverse
 from django.db.models import Sum
-from django.core.paginator import Paginator
 from .models import Poll, Question, Answer, Results
 
 questions_per_page = 3 # Show 3 questions per page
@@ -20,14 +17,15 @@ def index(request):
 
 
 def detail(request, poll_id):
+
     if 'current_page' not in request.session:
         request.session['current_page'] = 1
-
     if 'answers_received' not in request.session:
         request.session['answers_received'] = []
-
     if 'validation_passed' not in request.session:
         request.session['validation_passed'] = True
+    if 'post_data' not in request.session:
+        request.session['post_data'] = []
 
     poll = get_object_or_404(Poll, pk=poll_id)
     questions_list = Question.objects.filter(poll_id=poll_id)
@@ -35,7 +33,7 @@ def detail(request, poll_id):
     if 'total_num_of_pages' not in request.session:
         request.session['total_num_of_pages'] = getNumOfPages(questions_list)
 
-    current_page_questions = get_current_page_questions(int(request.session['current_page']), questions_list)
+    current_page_questions = getCurrentPageQuestions(int(request.session['current_page']), questions_list)
     request.session['current_page_questions_number'] = len(current_page_questions)
     answers = Answer.objects.filter(question__in = current_page_questions).select_related()
 
@@ -44,8 +42,9 @@ def detail(request, poll_id):
                        'current_page': request.session['current_page'], 'total_pages': request.session['total_num_of_pages'] })
 
     request.session['validation_passed'] = True # reset validation flag to initial value
-
     return x
+
+
 
 def getNumOfPages(questions_list):
     total_num_of_pages = len(questions_list) // questions_per_page # get only integer(not float) from division
@@ -55,15 +54,14 @@ def getNumOfPages(questions_list):
     return total_num_of_pages
 
 
+
 def submit(request, poll_id):
     poll = get_object_or_404(Question, pk=poll_id)
 
     answers_received = request.POST.getlist('answer')
     questions_list = Question.objects.filter(poll_id=poll_id)
 
-
-
-    current_page_questions = get_current_page_questions(int(request.session['current_page']), questions_list)
+    current_page_questions = getCurrentPageQuestions(int(request.session['current_page']), questions_list)
     validation = isPageValid(answers_received, current_page_questions)
 
     if not validation: # validation did not pass
@@ -75,6 +73,7 @@ def submit(request, poll_id):
         for answer in answers_received:
             # store the answers received after every page in a session variable
             request.session['answers_received'].append(answer.split(".")[0])
+            request.session['post_data'].append(answer)
 
         # Always return an HttpResponseRedirect after successfully dealing with POST data. This prevents data from being posted twice if a user hits the Back button.
         if int(request.session['current_page']) == int(request.session['total_num_of_pages']):
@@ -109,7 +108,8 @@ def getAnsweredQuestions(answers_received):
     return  questions_received
 
 
-def get_current_page_questions(current_page, questions_list):
+
+def getCurrentPageQuestions(current_page, questions_list):
     start_at = current_page * questions_per_page - questions_per_page
     stop_at = current_page * questions_per_page
 
@@ -133,21 +133,24 @@ def results(request, poll_id, total_score):
     max_possible_score = False
     necessary_answers = []
 
+    answers_received_copy = request.session['post_data']
+    del request.session['answers_received']
+    del request.session['post_data']
 
     if isMaxPossibleScore(poll_id, upper_limit[1]):
         max_possible_score = True
     else:
         score_difference = upper_limit[1] - total_score
-        answers_received_copy = request.session['answers_received']
         necessary_answers = calculateNecessaryAnswers(poll_id, int(request.session['total_num_of_pages']), score_difference, answers_received_copy )
 
 
     del request.session['total_num_of_pages']
+
     x = render(request, 'polls_app/poll_results.html', { 'poll': poll, 'total_score':total_score, 'upper_limit': upper_limit[1], 'result_id': upper_limit[0],
                                                          'necessary_amswers': necessary_answers, 'max_possible_score': max_possible_score })
 
-    del request.session['answers_received']
     return x
+
 
 
 def getReceivedAnswersPerPage(received_answers, page):
@@ -163,8 +166,6 @@ def getReceivedAnswersPerPage(received_answers, page):
 
 
 
-
-
 def isMaxPossibleScore(poll_id, upper_limit):
     result = Results.objects.filter(poll_id = poll_id).order_by('-result_upper_limit').first()
 
@@ -176,13 +177,12 @@ def isMaxPossibleScore(poll_id, upper_limit):
 
 
 
-
 def calculateNecessaryAnswers(poll_id, total_pages, score_difference, answers_received):
     questions_list = Question.objects.filter(poll_id=poll_id)
     necessary_answers = []
 
     for page_num in range(1, total_pages+1): # select only one answer for every page
-        current_page_questions = get_current_page_questions(page_num, questions_list)
+        current_page_questions = getCurrentPageQuestions(page_num, questions_list)
 
         # order answers by score desc
         current_page_answers = Answer.objects.filter(question__in=current_page_questions).select_related().order_by('-answer_score')
@@ -211,15 +211,13 @@ def calculateNecessaryAnswers(poll_id, total_pages, score_difference, answers_re
     return []
 
 
+
 def getNotSelectedAnswers(answers_received, current_page_answers):
     not_selected_answers = []
 
-    for answer_rec in answers_received:
-        for answ in current_page_answers:
-            if int(answer_rec) == answ.id:
-                continue
-            else:
-                not_selected_answers.append(answ)
+    for answ in current_page_answers:
+        if answ.id not in answers_received:
+            not_selected_answers.append(answ)
 
     return not_selected_answers
 
