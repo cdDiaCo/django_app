@@ -191,16 +191,18 @@ def calculateNecessaryAnswers(poll_id, total_pages, score_difference, answers_re
 
     biggest_unselected_scores.sort(key=lambda answer: answer.answer_score, reverse=True)
 
+    sum_score = 0
     for answer in biggest_unselected_scores:
-        sum_score = 0
-        if score_difference == 0: # just one answer is enough
+        if sum_score <= score_difference: # add answers until the score_difference is covered
             necessary_answers.append(answer)
-        else:
-            while sum_score <= score_difference: # and answers until the score_difference is covered
-                necessary_answers.append(answer)
-                sum_score += answer.answer_score
+            sum_score += answer.answer_score
+        else: # score_difference is covered, stop iteration
+            break
 
-        return necessary_answers
+    if sum_score <= score_difference: # if score_difference was not covered => too many points needed to change the result
+        necessary_answers = []
+
+    return necessary_answers
 
 
 
