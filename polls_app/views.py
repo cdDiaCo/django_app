@@ -180,35 +180,27 @@ def isMaxPossibleScore(poll_id, upper_limit):
 def calculateNecessaryAnswers(poll_id, total_pages, score_difference, answers_received):
     questions_list = Question.objects.filter(poll_id=poll_id)
     necessary_answers = []
+    biggest_unselected_scores = []
 
-    for page_num in range(1, total_pages+1): # select only one answer for every page
+    for page_num in range(1, total_pages+1):
         current_page_questions = getCurrentPageQuestions(page_num, questions_list)
-
-        # order answers by score desc
         current_page_answers = Answer.objects.filter(question__in=current_page_questions).select_related().order_by('-answer_score')
         received_answers_per_page = getReceivedAnswersPerPage(answers_received, page_num)
         not_selected_answers = getNotSelectedAnswers(received_answers_per_page, current_page_answers)
+        biggest_unselected_scores.append(not_selected_answers[0]) # add the answer with the best score for every page
 
-        for answer in not_selected_answers:
-            if answer.answer_score > score_difference : # in this case only one answer is needed to change the result
+    biggest_unselected_scores.sort(key=lambda answer: answer.answer_score, reverse=True)
 
-                if len(necessary_answers) > 0 :
-                    # the list already has other answers with smaller score (from previous pages)
-                    # empty the list. Previously added elements are no longer necessary
-                    while len(necessary_answers) > 0:
-                        necessary_answers.pop()
-
+    for answer in biggest_unselected_scores:
+        sum_score = 0
+        if score_difference == 0: # just one answer is enough
+            necessary_answers.append(answer)
+        else:
+            while sum_score <= score_difference: # and answers until the score_difference is covered
                 necessary_answers.append(answer)
-                return necessary_answers
-            else: # score_difference is too big, more answers are needed to change the result
-                score_sum = sum(int(answer.answer_score) for answer in necessary_answers)
-                if score_sum <= score_difference : # already added answers are not enough, more answers needed
-                    necessary_answers.append(answer)
-                    break # jump to the next page - outer for
-                else: # sum of already added answers are enough to change the result
-                    return necessary_answers
+                sum_score += answer.answer_score
 
-    return []
+        return necessary_answers
 
 
 
@@ -219,8 +211,8 @@ def getNotSelectedAnswers(answers_received, current_page_answers):
         if answ.id not in answers_received:
             not_selected_answers.append(answ)
 
+    not_selected_answers.sort(key=lambda answer: answer.answer_score, reverse=True)
     return not_selected_answers
-
 
 
 
