@@ -110,7 +110,6 @@ def getAnsweredQuestions(answers_received):
 
 
 def getCurrentPageQuestions(current_page, questions_list):
-    #print('\n\n Q PER PAGE:', questions_per_page)
     start_at = current_page * questions_per_page - questions_per_page
     stop_at = current_page * questions_per_page
 
@@ -187,13 +186,10 @@ def calculateNecessaryAnswers(poll_id, total_pages, score_difference, answers_re
         current_page_questions = getCurrentPageQuestions(page_num, questions_list)
         current_page_answers = Answer.objects.filter(question__in=current_page_questions).select_related().order_by('-answer_score')
         received_answers_per_page = getReceivedAnswersPerPage(answers_received, page_num)
-        #print(received_answers_per_page)
         not_selected_answers = getNotSelectedAnswers(received_answers_per_page, current_page_answers)
-        #print(not_selected_answers)
         biggest_unselected_scores.append(not_selected_answers[0]) # add the answer with the best score for every page
 
     biggest_unselected_scores.sort(key=lambda answer: answer.answer_score, reverse=True)
-    #print('\n\n unselected:', biggest_unselected_scores)
 
     sum_score = 0
     for answer in biggest_unselected_scores:
