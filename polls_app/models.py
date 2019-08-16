@@ -1,7 +1,5 @@
 from django.db import models
 
-# Create your models here.
-
 
 class Poll(models.Model):
     poll_name = models.CharField(max_length=200)
@@ -36,6 +34,3 @@ class Results(models.Model):
     def __str__(self):
         return  self.result_text
 
-
-
-    

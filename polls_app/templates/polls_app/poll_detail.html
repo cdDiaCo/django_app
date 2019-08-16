@@ -12,55 +12,43 @@
 <h3> {{ poll }} </h3>
 
 <form id="pollForm" action="{% url 'polls_app:poll_submit' poll.id %}" method="post">
-{% csrf_token %}
+    {% csrf_token %}
 
-{% if not validation_passed %}
-    <span style="color:red; font-weight:bold;" > You must choose at least an answer for every question! </span>
-    <br>
-{% endif %}
+    {% if not validation_passed %}
+        <span style="color:red; font-weight:bold;" > You must choose at least an answer for every question! </span>
+        <br>
+    {% endif %}
 
-
-{% for question in current_page_questions %}
-    {{ question }}<br>
-   <!-- <input type="hidden" name="question" value="{{ question.id }}"> -->
-    <br>
-    {% for answer in answers %}
-        {% if answer.question_id == question.id %}
-            <input type="checkbox" name="answer" value="{{ answer.id }}.{{ question.id }}.{{ current_page }}">
-            {{ answer }}
-        {% endif %}
+    {% for question in current_page_questions %}
+        {{ question }}<br>
+        <br>
+        {% for answer in answers %}
+            {% if answer.question_id == question.id %}
+                <input type="checkbox" name="answer" value="{{ answer.id }}.{{ question.id }}.{{ current_page }}">
+                {{ answer }}
+            {% endif %}
+        {% endfor %}
+        <br>
+        <br>
     {% endfor %}
-    <br>
-    <br>
-{% endfor %}
 
+    {% if current_page == total_pages %}
+        <input type="submit" value="Get result">
+    {% endif %}
 
-{% if current_page == total_pages %}
-    <input type="submit" value="Get result">
-{% endif %}
-
-
-<div class="pagination">
-    <span>
-    <!--
-        {% if current_page > 1 %}
-            <a href="?page={{ questions.previous_page_number }}"> << </a>
-        {% endif %} -->
-
+    <div class="pagination">
         <span>
-            Page {{ current_page }} of {{ total_pages }}
+            <span>
+                Page {{ current_page }} of {{ total_pages }}
+            </span>
+
+            {% if current_page < total_pages %}
+                <a href="#" onclick="document.getElementById('pollForm').submit();"> >> </a>
+            {% endif %}
         </span>
-
-        {% if current_page < total_pages %}
-            <a href="#" onclick="document.getElementById('pollForm').submit();"> >> </a>
-        {% endif %}
-    </span>
-</div>
-
+    </div>
 
 </form>
-
-
 
 </body>
 </html>
