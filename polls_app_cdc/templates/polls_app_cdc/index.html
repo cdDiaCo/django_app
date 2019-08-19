@@ -5,7 +5,7 @@
     <title>Title</title>
     {% load static %}
 
-    <link rel="stylesheet" type="text/css" href="{% static 'polls_app/style.css' %}">
+    <link rel="stylesheet" type="text/css" href="{% static 'polls_app_cdc/style.css' %}">
 </head>
 <body>
 
@@ -31,7 +31,7 @@
                     {{ poll.poll_description }}
                 </td>
                 <td>
-                    <a href="{% url 'polls_app:poll_detail' poll.id %}"> Start test </a>
+                    <a href="{% url 'polls_app_cdc:poll_detail' poll.id %}"> Start test </a>
                 </td>
             </tr>
     {% endfor %}

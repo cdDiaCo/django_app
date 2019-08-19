@@ -13,7 +13,7 @@ def index(request):
     context = {
         'polls_list': polls_list,
     }
-    return render(request, 'polls_app/index.html', context)
+    return render(request, 'polls_app_cdc/index.html', context)
 
 
 def detail(request, poll_id):
@@ -36,8 +36,8 @@ def detail(request, poll_id):
     current_page_questions = get_current_page_questions(int(request.session['current_page']), questions_list)
     request.session['current_page_questions_number'] = len(current_page_questions)
     answers = Answer.objects.filter(question__in = current_page_questions).select_related()
-    http_response_obj = render(request, 'polls_app/poll_detail.html',
-                      {'poll': poll, 'current_page_questions': current_page_questions, 'answers': answers, 'validation_passed': request.session['validation_passed'],
+    http_response_obj = render(request, 'polls_app_cdc/poll_detail.html',
+                               {'poll': poll, 'current_page_questions': current_page_questions, 'answers': answers, 'validation_passed': request.session['validation_passed'],
                        'current_page': request.session['current_page'], 'total_pages': request.session['total_num_of_pages'] })
 
     request.session['validation_passed'] = True # reset validation flag to initial value
@@ -64,7 +64,7 @@ def submit(request, poll_id):
     if not validation: # validation did not pass
         request.session['validation_passed'] = False
         return HttpResponseRedirect(
-            reverse('polls_app:poll_detail', args=(poll.id,)))
+            reverse('polls_app_cdc:poll_detail', args=(poll.id,)))
 
     else: # validation passed
         for answer in answers_received:
@@ -78,11 +78,11 @@ def submit(request, poll_id):
             del request.session['current_page']
 
             return HttpResponseRedirect(
-                reverse('polls_app:poll_results', args=(poll.id, total_score['answer_score__sum'])))
+                reverse('polls_app_cdc:poll_results', args=(poll.id, total_score['answer_score__sum'])))
 
         else:
             request.session['current_page'] = int(request.session['current_page']) + 1
-            return HttpResponseRedirect(reverse('polls_app:poll_detail', args=(poll.id,)))
+            return HttpResponseRedirect(reverse('polls_app_cdc:poll_detail', args=(poll.id,)))
 
 
 def is_page_valid(answers_received, current_page_questions):
@@ -130,8 +130,8 @@ def results(request, poll_id, total_score):
 
     del request.session['total_num_of_pages']
 
-    http_response_object = render(request, 'polls_app/poll_results.html', { 'poll': poll, 'total_score':total_score, 'upper_limit': upper_limit[1], 'result_id': upper_limit[0],
-                                                         'necessary_amswers': necessary_answers, 'max_possible_score': max_possible_score })
+    http_response_object = render(request, 'polls_app_cdc/poll_results.html', {'poll': poll, 'total_score':total_score, 'upper_limit': upper_limit[1], 'result_id': upper_limit[0],
+                                                         'necessary_amswers': necessary_answers, 'max_possible_score': max_possible_score})
 
     return http_response_object
 

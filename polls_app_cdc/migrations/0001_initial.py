@@ -33,7 +33,7 @@ class Migration(migrations.Migration):
             fields=[
                 ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
                 ('question_text', models.CharField(max_length=500)),
-                ('poll', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='polls_app.Poll')),
+                ('poll', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='polls_app_cdc.Poll')),
             ],
         ),
         migrations.CreateModel(
@@ -42,12 +42,12 @@ class Migration(migrations.Migration):
                 ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
                 ('result_text', models.CharField(max_length=500)),
                 ('result_upper_limit', models.IntegerField()),
-                ('poll', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='polls_app.Poll')),
+                ('poll', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='polls_app_cdc.Poll')),
             ],
         ),
         migrations.AddField(
             model_name='answer',
             name='question',
-            field=models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='polls_app.Question'),
+            field=models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='polls_app_cdc.Question'),
         ),
     ]

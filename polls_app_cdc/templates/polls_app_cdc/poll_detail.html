@@ -5,13 +5,13 @@
     <title>Title</title>
     {% load static %}
 
-    <link rel="stylesheet" type="text/css" href="{% static 'polls_app/style.css' %}">
+    <link rel="stylesheet" type="text/css" href="{% static 'polls_app_cdc/style.css' %}">
 </head>
 <body>
 
 <h3> {{ poll }} </h3>
 
-<form id="pollForm" action="{% url 'polls_app:poll_submit' poll.id %}" method="post">
+<form id="pollForm" action="{% url 'polls_app_cdc:poll_submit' poll.id %}" method="post">
     {% csrf_token %}
 
     {% if not validation_passed %}

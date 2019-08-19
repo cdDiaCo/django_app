@@ -3,7 +3,7 @@ from django.urls import path
 from . import views
 
 
-app_name = 'polls_app'
+app_name = 'polls_app_cdc'
 
 urlpatterns = [
     # ex: /polls/
