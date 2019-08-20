@@ -12,7 +12,9 @@ setup(
     version='0.1',
     packages=find_packages(),
     include_package_data=True,
+    license='BSD License',  # example license
     description='A simple Django app to conduct Web-based polls.',
+    url='https://www.example.com/',
     long_description=README,
     author='Claudia Cocioaba',
     author_email='claudia_cocioaba@yahoo.ro',
