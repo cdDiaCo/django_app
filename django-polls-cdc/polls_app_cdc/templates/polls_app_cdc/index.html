@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    {% load static %}
+
+    <link rel="stylesheet" type="text/css" href="{% static 'polls_app_cdc/style.css' %}">
+</head>
+<body>
+
+<div>
+    <h3> List containing all the available polls: </h3>
+
+{% if polls_list %}
+    <table>
+    <tr>
+        <th>  Poll Name </th>
+        <th> Description </th>
+        <th> Link </th>
+    </tr>
+
+
+
+    {% for poll in polls_list %}
+            <tr>
+                <td>
+                    {{ poll.poll_name }}
+                </td>
+                <td>
+                    {{ poll.poll_description }}
+                </td>
+                <td>
+                    <a href="{% url 'polls_app_cdc:poll_detail' poll.id %}"> Start test </a>
+                </td>
+            </tr>
+    {% endfor %}
+
+    </table>
+{% else %}
+    <p> No polls are available.</p>
+{% endif %}
+
+ </div>
+
+</body>
+</html>
+
+

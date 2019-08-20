@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    {% load static %}
+
+    <link rel="stylesheet" type="text/css" href="{% static 'polls_app_cdc/style.css' %}">
+</head>
+<body>
+
+<h3> {{ poll }} </h3>
+
+<form id="pollForm" action="{% url 'polls_app_cdc:poll_submit' poll.id %}" method="post">
+    {% csrf_token %}
+
+    {% if not validation_passed %}
+        <span style="color:red; font-weight:bold;" > You must choose at least an answer for every question! </span>
+        <br>
+    {% endif %}
+
+    {% for question in current_page_questions %}
+        {{ question }}<br>
+        <br>
+        {% for answer in answers %}
+            {% if answer.question_id == question.id %}
+                <input type="checkbox" name="answer" value="{{ answer.id }}.{{ question.id }}.{{ current_page }}">
+                {{ answer }}
+            {% endif %}
+        {% endfor %}
+        <br>
+        <br>
+    {% endfor %}
+
+    {% if current_page == total_pages %}
+        <input type="submit" value="Get result">
+    {% endif %}
+
+    <div class="pagination">
+        <span>
+            <span>
+                Page {{ current_page }} of {{ total_pages }}
+            </span>
+
+            {% if current_page < total_pages %}
+                <a href="#" onclick="document.getElementById('pollForm').submit();"> >> </a>
+            {% endif %}
+        </span>
+    </div>
+
+</form>
+
+</body>
+</html>
