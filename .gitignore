@@ -3,4 +3,8 @@ env
 *.pyc
 __pycache__
 db.sqlite3
-.idea*
+*.idea/
+build/
+dist/
+django_polls_cdc.egg-info/
+
